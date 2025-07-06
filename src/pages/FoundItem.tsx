@@ -1,9 +1,8 @@
-import { SearchBar } from "@/components/search-bar";
-import LostItemCard from "@/components/lost-item-card"; 
-import { lostItems } from "@/utils/lostItemsData";
+import FoundItemCard from "@/components/found-item-card";
+import { SearchBar } from "@/components/search-bar"
+import { foundItems } from "@/utils/foundItemsData";
 
-
-export default function LostItem() {
+const FoundItem = () => {
   return (
     <div className="w-full h-full p-6">
       {/* Search bar */}
@@ -12,10 +11,12 @@ export default function LostItem() {
       </div>
       {/* Grid of items */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {lostItems.map((item) => (
-          <LostItemCard key={item.id} item={item} />
+        {foundItems.map((item) => (
+          <FoundItemCard key={item.id} item={item} />
         ))}
       </div>
     </div>
   );
-}
+};
+
+export default FoundItem;

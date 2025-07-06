@@ -251,7 +251,7 @@ const LandingPage = () => {
               Why Choose
             </button>
             <Link
-              to="/login"
+              to="/auth/login"
               className="font-medium hover:underline text-left"
               style={{ color: "#31C358" }}
               onClick={() => setMenuOpen(false)}
@@ -263,7 +263,7 @@ const LandingPage = () => {
               style={{ background: "#31C358" }}
               asChild
             >
-              <Link to="/signup" onClick={() => setMenuOpen(false)}>
+              <Link to="/auth/signup" onClick={() => setMenuOpen(false)}>
                 Sign Up
               </Link>
             </Button>
@@ -283,13 +283,6 @@ const LandingPage = () => {
         </div>
         <div className="max-w-5xl w-full mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12 z-10">
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-6 md:gap-8 order-2 md:order-1">
-            <div className="relative flex flex-col items-center md:items-start mb-4 md:mb-0">
-              <LocationPin
-                className="w-20 h-20 md:w-24 md:h-24 z-10"
-                size={80}
-                animate
-              />
-            </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold mb-2 md:mb-4 text-white drop-shadow-lg">
               FindIt: Lost & Found, Reimagined
             </h1>
