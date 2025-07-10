@@ -89,14 +89,3 @@ const CreateFindItem = () => {
 
 export default CreateFindItem;
 
-// Add this to your global CSS (e.g., index.css or tailwind.css):
-// .animate-fade-in-scale {
-//   @apply transition-all duration-300 ease-out transform scale-95 opacity-0;
-//   animation: fadeInScale 0.3s forwards;
-// }
-// @keyframes fadeInScale {
-//   to {
-//     opacity: 1;
-//     transform: scale(1);
-//   }
-// }
