@@ -23,7 +23,7 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "./ui/button";
-
+import { useAuth } from "@/context/AuthContext";
 // This is sample data.
 const data = {
   versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
@@ -129,6 +129,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   return (
     <Sidebar
       {...props}
@@ -178,7 +179,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Button
         variant="ghost"
         className="w-full flex items-center gap-2 justify-start mb-4"
-        onClick={() => navigate("/auth/login")}
+        onClick={() => {
+          navigate("/auth/login");
+          signOut();
+        }}
       >
         <LogOutIcon className="w-5 h-5" />
         Logout
