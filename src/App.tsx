@@ -14,7 +14,7 @@ import CreateLostItem from "./components/create-lost-item";
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
-
+// import  { Toaster } from "react-hot-toast";
 function App() {
 
   const location = useLocation();
@@ -23,31 +23,31 @@ function App() {
 
   return (
     <>
+      {/* <Toaster /> */}
       <Routes>
         <Route element={<PublicRoute />}>
-        <Route index element={<Landing />} />
+          <Route index element={<Landing />} />
         </Route>
         <Route path="about" element={<About />} />
 
         {/* Authentication */}
         <Route path="auth" element={<PublicRoute />}>
-        <Route  element={<Auth />}>
-          <Route path="login" element={<LoginForm />} />
-          <Route path="signup" element={<SignupForm />} />
-        </Route>
+          <Route element={<Auth />}>
+            <Route path="login" element={<LoginForm />} />
+            <Route path="signup" element={<SignupForm />} />
+          </Route>
         </Route>
 
-        <Route path="home" element={<ProtectedRoute />}>  
-        <Route  element={<DashboardLayout />}>
-          <Route path="lost-item" element={<LostItem />} />
-          <Route path="found-item" element={<FoundItem />} />
-          <Route path="messaging" element={<Messaging />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
+        <Route path="home" element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="lost-item" element={<LostItem />} />
+            <Route path="found-item" element={<FoundItem />} />
+            <Route path="messaging" element={<Messaging />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />
-
       </Routes>
 
       {/* Floating Button */}

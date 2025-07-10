@@ -3,14 +3,10 @@ import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { FoundItem } from "./types/foundItem";
-// import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/supabase-client";
 import { useMutation } from "@tanstack/react-query";
+import toast, { Toaster } from "react-hot-toast";
 // import { useAuth } from "@/context/AuthContext";
-
-// const createPost = async (post: FoundItem) => {
-
-// }
 
 // Create your API function outside the component:
 const createPost = async (post: FoundItem, imageFile: File) => {
@@ -45,20 +41,20 @@ const CreateFoundItem = () => {
   } = useForm<FoundItem>();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  // const { user } = useAuth();
 
   const { mutate, isPending, isError } = useMutation({
     mutationFn: (data: { post: FoundItem; imageFile: File }) =>
       createPost(data.post, data.imageFile),
     onSuccess: () => {
-      alert("Post created!");
+      toast.success("Post created!");
       reset();
       setSelectedFile(null);
+      setPreviewUrl(null)
       handleClose();
     },
     onError: (err: string) => {
       console.error(err);
-      alert("Something went wrong.");
+      toast.error("Something went wrong.");
     },
   });
 
@@ -97,6 +93,7 @@ const CreateFoundItem = () => {
 
   return (
     <>
+      <Toaster position="bottom-right" reverseOrder={false} />
       {/* Modern Floating Action Button */}
       <Button
         className="fixed bg-green-600 bottom-6 right-6 z-50 flex items-center gap-2 p-3 rounded-full shadow-lg text-white text-base hover:scale-105 focus:ring-2 focus:ring-emerald-400 transition"
