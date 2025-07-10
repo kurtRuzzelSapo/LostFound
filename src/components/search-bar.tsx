@@ -27,7 +27,10 @@ export function SearchBar({
         <input
           id="search"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => {
+            setValue(e.target.value);
+            // onSearch(e.target.value);
+          }}
           placeholder={placeholder}
           className="pl-10 pr-10 bg-white/90 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-150 shadow-sm w-full py-2"
         />
