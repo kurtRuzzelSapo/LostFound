@@ -37,7 +37,7 @@ const CreateFoundItem = () => {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors }
   } = useForm<FoundItem>();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -49,7 +49,7 @@ const CreateFoundItem = () => {
       toast.success("Post created!");
       reset();
       setSelectedFile(null);
-      setPreviewUrl(null)
+      setPreviewUrl(null);
       handleClose();
     },
     onError: (err: string) => {
@@ -69,11 +69,11 @@ const CreateFoundItem = () => {
     });
   };
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      console.log("Session:", data.session);
-    });
-  }, []);
+  // useEffect(() => {
+  //   supabase.auth.getSession().then(({ data }) => {
+  //     console.log("Session:", data.session);
+  //   });
+  // }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);

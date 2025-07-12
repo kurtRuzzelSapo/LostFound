@@ -1,22 +1,22 @@
-import FoundItemCard from "@/components/found-item-card";
+import LostItemCard from "@/components/lost-item-card";
+import type { LostItem } from "@/components/types/lostItem";
 import { supabase } from "@/supabase-client";
-import type { FoundItem } from "@/components/types/foundItem";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import Loading from "@/components/loading";
 import { useEffect } from "react";
-
-const fetchFoundItems = async (): Promise<FoundItem[]> => {
+import Loading from "@/components/loading";
+const fetchLostItems = async (): Promise<LostItem[]> => {
   const { data, error } = await supabase
-    .from("found-item")
+    .from("lost-items")
     .select("*")
-    .order("date_found", { ascending: false });
+    .order("date_lost", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return data as FoundItem[];
+  return data as LostItem[];
 };
 
-const FoundItemLayout = ({ searchQuery }: {searchQuery:string}) => {
+
+const LostItemLayout = ({ searchQuery }: { searchQuery: string }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -27,45 +27,43 @@ const FoundItemLayout = ({ searchQuery }: {searchQuery:string}) => {
         {
           event: "*", // could be "INSERT", "UPDATE", "DELETE"
           schema: "public",
-          table: "found-item",
+          table: "lost-items",
         },
         () => {
           console.log("🔄 Found item changed – refetching...");
-            queryClient.invalidateQueries({ queryKey: ["found-items"] });
+          queryClient.invalidateQueries({ queryKey: ["lost-items"] });
         }
       )
       .subscribe();
 
-    return () => { 
+    return () => {
       channel.unsubscribe(); // Clean up on unmount
     };
   }, [queryClient]);
 
   const {
-    data: foundItems,
+    data: lostItems,
     isError,
     isLoading,
     error,
-  } = useQuery<FoundItem[], Error>({
-    queryKey: ["found-items"],
-    queryFn: fetchFoundItems,
+  } = useQuery<LostItem[], Error>({
+    queryKey: ["lost-items"],
+    queryFn: fetchLostItems,
   });
 
   if (isLoading) return <Loading />;
   if (isError) return <p className="text-red-500">Error: {error.message}</p>;
 
-  const filteredItems = foundItems?.filter((item) =>
+  const filteredItems = lostItems?.filter((item) =>
     item.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {filteredItems?.map((item, index) => (
-          <FoundItemCard key={item.id} item={item} index={index} />
-        ))}
-      </div>
-    </>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {filteredItems?.map((item, index) => (
+        <LostItemCard key={item.id} item={item} index={index} />
+      ))}
+    </div>
   );
-};
+}
 
-export default FoundItemLayout;
+export default LostItemLayout
