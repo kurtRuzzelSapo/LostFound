@@ -1,18 +1,64 @@
-import { MapPinPlusIcon, X, UploadCloud } from "lucide-react";
+import { MapPinPlusIcon, UploadCloud, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
+import type { LostItem } from "./types/lostItem";
+import { useForm } from "react-hook-form";
+import {toast, Toaster } from "react-hot-toast";
+import { supabase } from "@/supabase-client";
+import { useMutation } from "@tanstack/react-query";
+
+const createPost = async (post: LostItem, imageFile: File) => {
+  const filePath = `${post.title}-${Date.now()}-${imageFile.name}`;
+
+  const {error: uploadError} = await supabase.storage.from("lost-images").upload(filePath, imageFile)
+  
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { data: publicURLData } = supabase.storage
+    .from("lost-images")
+    .getPublicUrl(filePath);
+  
+  const { data, error } = await supabase.from("lost-items").insert({ ...post, image_url: publicURLData.publicUrl })
+  
+  if (error) throw new Error(error.message);
+
+  return data;
+}
 
 const CreateLostItem = () => {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<LostItem>(); 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const { mutate, isPending, isError } = useMutation({
+    mutationFn: (data: { post: LostItem; imageFile: File }) =>
+      createPost(data.post, data.imageFile),
+    onSuccess: () => {
+      toast.success("Post created!");
+      reset();
+      setSelectedFile(null);
+      setPreviewUrl(null);
+    },
+    onError: (err: string) => {
+      toast.error(`Something went wrong, ${err}`)
+      console.error(err)
+    }
+  })
+
+  const onSubmit = (formData: LostItem) => {
+    if (!selectedFile) return;
+    mutate({
+      post: {
+        ...formData,
+
+      },
+      imageFile: selectedFile,
+    })
+  }
+
+
   const [showModal, setShowModal] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    location: "",
-    datetime: "",
-    description: "",
-    file: null as File | null,
-  });
-  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   // Open modal handler
   const handleOpen = () => setShowModal(true);
@@ -28,34 +74,10 @@ const CreateLostItem = () => {
     else setAnimateIn(false);
   }, [showModal]);
 
-  // Handle form input changes
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    if (
-      name === "file" &&
-      e.target instanceof HTMLInputElement &&
-      e.target.files
-    ) {
-      const file = e.target.files[0];
-      setForm((f) => ({ ...f, file: file || null }));
-      if (file) setFilePreview(URL.createObjectURL(file));
-      else setFilePreview(null);
-    } else {
-      setForm((f) => ({ ...f, [name]: value }));
-    }
-  };
-
-  // Handle form submit
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // TODO: Submit logic (API call)
-    handleClose();
-  };
 
   return (
     <>
+      <Toaster position="bottom-right" reverseOrder={false} />
       {/* Floating Action Button */}
       <Button
         className="fixed bg-green-600 bottom-6 right-6 z-50 flex items-center gap-2 p-3 rounded-full shadow-lg text-white text-base hover:scale-105 focus:ring-2 focus:ring-emerald-400 transition"
@@ -86,7 +108,10 @@ const CreateLostItem = () => {
             <h2 className="text-base font-bold text-center mb-2 text-zinc-900 dark:text-zinc-100 tracking-tight">
               Report a Lost Item
             </h2>
-            <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex flex-col gap-3"
+            >
               <div className="flex flex-col gap-2">
                 <label
                   htmlFor="item-name"
@@ -96,13 +121,15 @@ const CreateLostItem = () => {
                 </label>
                 <input
                   id="item-name"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
+                  {...register("title", { required: true })}
+                  name="title"
                   className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm transition placeholder:text-zinc-400"
                   placeholder="e.g. Wallet, Phone, Keys"
                   required
                 />
+                {errors.title && (
+                  <p className="text-red-500">Title is required</p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <label
@@ -113,13 +140,15 @@ const CreateLostItem = () => {
                 </label>
                 <input
                   id="item-location"
+                  {...register("location", { required: true })}
                   name="location"
-                  value={form.location}
-                  onChange={handleChange}
                   className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm transition placeholder:text-zinc-400"
                   placeholder="Where did you lose it?"
                   required
                 />
+                {errors.location && (
+                  <p className="text-red-500">Location is required</p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <label
@@ -131,9 +160,8 @@ const CreateLostItem = () => {
                 <input
                   id="item-datetime"
                   type="datetime-local"
-                  name="datetime"
-                  value={form.datetime}
-                  onChange={handleChange}
+                  {...register("date_lost", { required: true })}
+                  name="date_lost"
                   className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm transition placeholder:text-zinc-400"
                   required
                 />
@@ -147,9 +175,8 @@ const CreateLostItem = () => {
                 </label>
                 <textarea
                   id="item-description"
+                  {...register("description", { required: true })}
                   name="description"
-                  value={form.description}
-                  onChange={handleChange}
                   className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 min-h-[60px] focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm transition placeholder:text-zinc-400"
                   placeholder="Describe the item in detail..."
                   required
@@ -160,25 +187,34 @@ const CreateLostItem = () => {
                   Upload Photo
                 </label>
                 <label className="flex flex-col items-center justify-center border-2 border-dashed border-emerald-400 rounded-xl bg-emerald-50 dark:bg-zinc-800 h-24 sm:h-32 cursor-pointer hover:bg-emerald-100 dark:hover:bg-zinc-700 transition group relative">
-                  {filePreview ? (
+                  {previewUrl ? (
                     <img
-                      src={filePreview}
+                      src={previewUrl}
                       alt="Preview"
-                      className="object-contain h-16 sm:h-24 max-w-full rounded-md"
+                      className="object-cover w-full h-full rounded-xl"
                     />
                   ) : (
-                    <span className="flex flex-col items-center text-emerald-500 group-hover:text-emerald-700 transition">
+                    <div className="flex flex-col items-center text-emerald-500 group-hover:text-emerald-700 transition">
                       <UploadCloud className="w-8 h-8 mb-2" />
-                      <span className="text-xs">Click or drag to upload</span>
-                    </span>
+                      <span className="text-xs text-center">
+                        Click or drag to upload
+                      </span>
+                    </div>
                   )}
+
                   <input
                     type="file"
                     name="file"
                     accept="image/*"
-                    onChange={handleChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     tabIndex={-1}
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        const file = e.target.files[0];
+                        setSelectedFile(file);
+                        setPreviewUrl(URL.createObjectURL(file));
+                      }
+                    }}
                   />
                 </label>
               </div>
@@ -192,10 +228,14 @@ const CreateLostItem = () => {
                 </button>
                 <button
                   type="submit"
+                  disabled={isPending}
                   className="flex-1 py-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-md text-sm transition"
                 >
-                  Submit
+                  {isPending ? "Creating.." : "Submit"}
                 </button>
+                {isError && (
+                  <p className="text-red-500">Something went wrong.</p>
+                )}
               </div>
             </form>
           </div>

@@ -2,9 +2,9 @@ export type LostItem = {
     id: string;
     title: string;
     description: string;
-    imageUrl?: string;
-    dateLost: string;
+    image_url?: string;
+    date_lost: string;
     location: string;  
     category: string;
-    isClaimed: boolean;
+    is_claimed: boolean;
 }

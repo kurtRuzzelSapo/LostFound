@@ -1,5 +1,6 @@
 import { Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
 
 type SearchBarProps = {
   onSearch: (value: string) => void;
@@ -13,7 +14,12 @@ export function SearchBar({
   className,
 }: SearchBarProps) {
   const [value, setValue] = useState("");
+  const [debouncedValue] = useDebounce(value, 300)
 
+useEffect(() => {
+  onSearch(debouncedValue); // ✅ call onSearch only when user stops typing
+}, [debouncedValue, onSearch]);
+  
   return (
     <form
       className={className}
@@ -29,7 +35,6 @@ export function SearchBar({
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
-            // onSearch(e.target.value);
           }}
           placeholder={placeholder}
           className="pl-10 pr-10 bg-white/90 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-150 shadow-sm w-full py-2"
