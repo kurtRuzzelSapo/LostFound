@@ -3,36 +3,47 @@ import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import type { LostItem } from "./types/lostItem";
 import { useForm } from "react-hook-form";
-import {toast, Toaster } from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import { supabase } from "@/supabase-client";
 import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/context/AuthContext";
 
-const createPost = async (post: LostItem, imageFile: File) => {
-  const filePath = `${post.title}-${Date.now()}-${imageFile.name}`;
+const createPost = async (post: LostItem, imageFile: File, userId: string) => {
+  const filePath = `${userId}/${post.title}-${Date.now()}-${imageFile.name}`;
 
-  const {error: uploadError} = await supabase.storage.from("lost-images").upload(filePath, imageFile)
-  
+  const { error: uploadError } = await supabase.storage
+    .from("lost-images")
+    .upload(filePath, imageFile);
+
   if (uploadError) throw new Error(uploadError.message);
 
   const { data: publicURLData } = supabase.storage
     .from("lost-images")
     .getPublicUrl(filePath);
-  
-  const { data, error } = await supabase.from("lost-items").insert({ ...post, image_url: publicURLData.publicUrl })
-  
+
+  const { data, error } = await supabase
+    .from("lost-items")
+    .insert({ ...post, image_url: publicURLData.publicUrl });
+
   if (error) throw new Error(error.message);
 
   return data;
-}
+};
 
 const CreateLostItem = () => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<LostItem>(); 
+  const { user } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<LostItem>();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: (data: { post: LostItem; imageFile: File }) =>
-      createPost(data.post, data.imageFile),
+    mutationFn: (data: { post: LostItem; imageFile: File; userId: string }) =>
+      createPost(data.post, data.imageFile, data.userId),
     onSuccess: () => {
       toast.success("Post created!");
       reset();
@@ -40,22 +51,26 @@ const CreateLostItem = () => {
       setPreviewUrl(null);
     },
     onError: (err: string) => {
-      toast.error(`Something went wrong, ${err}`)
-      console.error(err)
-    }
-  })
+      toast.error(`Something went wrong, ${err}`);
+      console.error(err);
+    },
+  });
 
   const onSubmit = (formData: LostItem) => {
     if (!selectedFile) return;
+    if (!user?.id) {
+      toast.error("You must be logged in to post a lost item.");
+      return;
+    }
     mutate({
       post: {
         ...formData,
-
+        user_id: user.id,
       },
       imageFile: selectedFile,
-    })
-  }
-
+      userId: user.id,
+    });
+  };
 
   const [showModal, setShowModal] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
@@ -73,7 +88,6 @@ const CreateLostItem = () => {
     if (showModal) setTimeout(() => setAnimateIn(true), 10);
     else setAnimateIn(false);
   }, [showModal]);
-
 
   return (
     <>

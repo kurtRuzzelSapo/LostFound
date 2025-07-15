@@ -6,11 +6,11 @@ import type { FoundItem } from "./types/foundItem";
 import { supabase } from "@/supabase-client";
 import { useMutation } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
-// import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 // Create your API function outside the component:
-const createPost = async (post: FoundItem, imageFile: File) => {
-  const filePath = `${post.title}-${Date.now()}-${imageFile.name}`;
+const createPost = async (post: FoundItem, imageFile: File, userId: string) => {
+  const filePath = `${userId}/${post.title}-${Date.now()}-${imageFile.name}`;
 
   const { error: uploadError } = await supabase.storage
     .from("found-images")
@@ -32,19 +32,19 @@ const createPost = async (post: FoundItem, imageFile: File) => {
 };
 
 const CreateFoundItem = () => {
-  // const user = useAuth()
+  const { user } = useAuth();
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<FoundItem>();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const { mutate, isPending, isError } = useMutation({
-    mutationFn: (data: { post: FoundItem; imageFile: File }) =>
-      createPost(data.post, data.imageFile),
+    mutationFn: (data: { post: FoundItem; imageFile: File; userId: string }) =>
+      createPost(data.post, data.imageFile, data.userId),
     onSuccess: () => {
       toast.success("Post created!");
       reset();
@@ -60,12 +60,17 @@ const CreateFoundItem = () => {
 
   const onSubmit = (formData: FoundItem) => {
     if (!selectedFile) return;
+    if (!user?.id) {
+      toast.error("You must be logged in to post a found item.");
+      return;
+    }
     mutate({
       post: {
         ...formData,
-        // avatar_url: user?.user_metadata.avatar_url || null,
+        user_id: user.id,
       },
       imageFile: selectedFile,
+      userId: user.id,
     });
   };
 

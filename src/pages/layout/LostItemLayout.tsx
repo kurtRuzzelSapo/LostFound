@@ -1,20 +1,21 @@
 import LostItemCard from "@/components/lost-item-card";
-import type { LostItem } from "@/components/types/lostItem";
+import type { LostItemWithProfile } from "@/components/types/lostItem";
 import { supabase } from "@/supabase-client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import Loading from "@/components/loading";
-const fetchLostItems = async (): Promise<LostItem[]> => {
+const fetchLostItems = async (): Promise<LostItemWithProfile[]> => {
   const { data, error } = await supabase
     .from("lost-items")
-    .select("*")
+    .select(
+      "*, user_profiles(full_name, avatar_url, phone_number, whatsapp, email, preferred_contact_method, contact_visibility)"
+    )
     .order("date_lost", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return data as LostItem[];
+  return data as LostItemWithProfile[];
 };
-
 
 const LostItemLayout = ({ searchQuery }: { searchQuery: string }) => {
   const queryClient = useQueryClient();
@@ -46,7 +47,7 @@ const LostItemLayout = ({ searchQuery }: { searchQuery: string }) => {
     isError,
     isLoading,
     error,
-  } = useQuery<LostItem[], Error>({
+  } = useQuery<LostItemWithProfile[], Error>({
     queryKey: ["lost-items"],
     queryFn: fetchLostItems,
   });
@@ -64,6 +65,5 @@ const LostItemLayout = ({ searchQuery }: { searchQuery: string }) => {
       ))}
     </div>
   );
-}
-
-export default LostItemLayout
+};
+export default LostItemLayout;

@@ -14,16 +14,14 @@ import CreateLostItem from "./components/create-lost-item";
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
-// import  { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
+
 function App() {
-
   const location = useLocation();
-
- 
 
   return (
     <>
-      {/* <Toaster /> */}
+      <Toaster />
       <Routes>
         <Route element={<PublicRoute />}>
           <Route index element={<Landing />} />

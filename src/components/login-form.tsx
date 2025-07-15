@@ -6,15 +6,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
-import { supabase } from "@/supabase-client";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const { signInWithGoogle, user } = useAuth();
+  const { signInWithGoogle, signInWithEmail, user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -24,22 +24,31 @@ export function LoginForm({
     }
   }, [user, navigate]);
 
-  // Add your own signInWithEmail function in AuthContext or here
-  const signInWithEmail = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return error;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const error = await signInWithEmail(email, password);
-    if (!error) {
-      // user will be set, useEffect will redirect
-    } else {
-      // handle error (show message)
+
+    // Basic validation
+    if (!email.trim()) {
+      alert("Please enter your email");
+      return;
+    }
+
+    if (!password.trim()) {
+      alert("Please enter your password");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { error } = await signInWithEmail(email, password);
+      if (!error) {
+        // User will be redirected by the useEffect when user state changes
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,9 +73,10 @@ export function LoginForm({
               type="email"
               placeholder="m@example.com"
               required
-              className="placeholder:text-white border-[#31C358]  bg-black/15 "
+              className="placeholder:text-white border-[#31C358] bg-black/15"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
             />
           </div>
           <div className="grid gap-3">
@@ -83,13 +93,18 @@ export function LoginForm({
               id="password"
               type="password"
               required
-              className="placeholder:text-white border-[#31C358]  bg-black/15 "
+              className="placeholder:text-white border-[#31C358] bg-black/15"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
             />
           </div>
-          <Button type="submit" className="w-full bg-[#3A6035]">
-            Login
+          <Button
+            type="submit"
+            className="w-full bg-[#3A6035]"
+            disabled={isLoading}
+          >
+            {isLoading ? "Signing in..." : "Login"}
           </Button>
           <div className="text-black after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
             <span className="bg-[#31C358] text-white relative z-10 px-2">
@@ -102,6 +117,7 @@ export function LoginForm({
         onClick={signInWithGoogle}
         variant="outline"
         className="w-full text-black flex items-center gap-2 m-2"
+        disabled={isLoading}
       >
         <FcGoogle size={20} />
         Login with Google
