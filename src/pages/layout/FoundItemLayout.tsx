@@ -1,22 +1,24 @@
 import FoundItemCard from "@/components/found-item-card";
 import { supabase } from "@/supabase-client";
-import type { FoundItem } from "@/components/types/foundItem";
+import type { FoundItemWithProfile } from "@/components/types/foundItem";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "@/components/loading";
 import { useEffect } from "react";
 
-const fetchFoundItems = async (): Promise<FoundItem[]> => {
+const fetchFoundItems = async (): Promise<FoundItemWithProfile[]> => {
   const { data, error } = await supabase
     .from("found-item")
-    .select("*")
+    .select(
+      "*, user_profiles(full_name, avatar_url, phone_number, whatsapp, email, preferred_contact_method, contact_visibility)"
+    )
     .order("date_found", { ascending: false });
 
   if (error) throw new Error(error.message);
 
-  return data as FoundItem[];
+  return data as FoundItemWithProfile[];
 };
 
-const FoundItemLayout = ({ searchQuery }: {searchQuery:string}) => {
+const FoundItemLayout = ({ searchQuery }: { searchQuery: string }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -31,12 +33,12 @@ const FoundItemLayout = ({ searchQuery }: {searchQuery:string}) => {
         },
         () => {
           console.log("🔄 Found item changed – refetching...");
-            queryClient.invalidateQueries({ queryKey: ["found-items"] });
+          queryClient.invalidateQueries({ queryKey: ["found-items"] });
         }
       )
       .subscribe();
 
-    return () => { 
+    return () => {
       channel.unsubscribe(); // Clean up on unmount
     };
   }, [queryClient]);
@@ -46,7 +48,7 @@ const FoundItemLayout = ({ searchQuery }: {searchQuery:string}) => {
     isError,
     isLoading,
     error,
-  } = useQuery<FoundItem[], Error>({
+  } = useQuery<FoundItemWithProfile[], Error>({
     queryKey: ["found-items"],
     queryFn: fetchFoundItems,
   });

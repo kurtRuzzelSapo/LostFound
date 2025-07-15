@@ -4,14 +4,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/context/AuthContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { getFormattedToday } from "@/utils/Date";
 import { CalendarIcon } from "lucide-react";
 import { Outlet } from "react-router";
 
 export default function DashboardLayout() {
   const today = getFormattedToday();
-  const { user } = useAuth();
+  const { profile } = useUserProfile();
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -19,21 +20,21 @@ export default function DashboardLayout() {
         <header className="sticky top-0 z-30 flex justify-between h-16 shrink-0 items-center gap-2 border-b px-4 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md">
           <SidebarTrigger className="-ml-1" />
           <div className="flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5 text-green-600" />
-              <span className="font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
-                {today}
-              </span>
+            <CalendarIcon className="w-5 h-5 text-green-600" />
+            <span className="font-semibold text-gray-800 dark:text-gray-100 tracking-wide">
+              {today}
+            </span>
             <div className="inline-flex items-center gap-3 bg-white/80 dark:bg-white/10 px-4 py-2 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-              {user?.user_metadata?.avatar_url && (
+              {profile?.avatar_url && (
                 <img
-                  src={user.user_metadata.avatar_url}
-                  alt={user.user_metadata.name || "Profile"}
+                  src={profile.avatar_url}
+                  alt={profile.full_name || "Profile"}
                   className="w-8 h-8 rounded-full border-2 border-green-400 object-cover"
                 />
               )}
-              {user?.user_metadata?.name && (
+              {profile?.full_name && (
                 <span className="font-semibold text-gray-700 dark:text-gray-200 text-sm ml-2">
-                  {user.user_metadata.name}
+                  {profile.full_name}
                 </span>
               )}
             </div>
