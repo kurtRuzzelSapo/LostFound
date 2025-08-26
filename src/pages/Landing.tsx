@@ -284,9 +284,9 @@ const LandingPage = () => {
         <div className="max-w-5xl w-full mx-auto flex flex-col md:flex-row items-center gap-8 md:gap-12 z-10">
           <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left gap-6 md:gap-8 order-2 md:order-1">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold mb-2 md:mb-4 text-white drop-shadow-lg">
-              FindIt: Lost & Found, Reimagined
+              FindIt: A Web Based  Lost & Found    Portal      for Gordon College
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 text-white/90">
+           {/*<p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 text-white/90">
               Instantly report, search, and recover lost items with a vibrant,
               helpful community.
               <br />
@@ -298,8 +298,8 @@ const LandingPage = () => {
               asChild
             >
               <Link to="/signup">Get Started</Link>
-            </Button>
-          </div>
+            </Button>*/}
+          </div> 
           {/* Illustration or image */}
           <div className="flex-1 flex items-center justify-center relative order-1 md:order-2 mb-8 md:mb-0">
             <img
