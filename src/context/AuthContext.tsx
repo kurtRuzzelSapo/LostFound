@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 
 interface AuthContextType {
   user: User | null;
+  isAdmin: boolean;
+  isLoading: boolean;
   signInWithGoogle: () => void;
   signOut: () => Promise<void>;
   signUpWithEmail: (
@@ -16,7 +18,6 @@ interface AuthContextType {
     email: string,
     password: string
   ) => Promise<{ error: Error | null }>;
-  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +25,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -31,7 +33,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
+
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+
+        // Determine admin role from user metadata
+        setIsAdmin(currentUser?.user_metadata?.role === "admin");
       } catch (error) {
         console.error("Error initializing auth:", error);
       } finally {
@@ -41,10 +48,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeAuth();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-      setIsLoading(false);
-    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_, session) => {
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        setIsAdmin(currentUser?.user_metadata?.role === "admin");
+        setIsLoading(false);
+      }
+    );
 
     return () => {
       listener.subscription.unsubscribe();
@@ -127,30 +138,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      // Clear user state immediately for responsive UI
       setUser(null);
+      setIsAdmin(false);
 
-      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Error signing out:", error);
         toast.error("Failed to sign out");
-        // Restore user state if signout failed
+
         const {
           data: { session },
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
+        setIsAdmin(session?.user?.user_metadata?.role === "admin");
       } else {
         toast.success("Signed out successfully");
       }
     } catch (error) {
       console.error("Error during sign out:", error);
       toast.error("Failed to sign out");
-      // Restore user state if signout failed
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
+      setIsAdmin(session?.user?.user_metadata?.role === "admin");
     }
   };
 
@@ -158,11 +170,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        isAdmin,
+        isLoading,
         signInWithGoogle,
         signOut,
         signUpWithEmail,
         signInWithEmail,
-        isLoading,
       }}
     >
       {children}
@@ -172,8 +185,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within the AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 };
