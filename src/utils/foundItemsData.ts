@@ -4,14 +4,16 @@ import type { FoundItem } from "@/components/types/foundItem";
 export const foundItems: FoundItem[] = [
   {
     id: "1",
-    title: "Black Wallet",
-    description: "A black leather wallet with several cards inside.",
-    imageUrl:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80",
-    dateFound: "2024-06-01",
+    title: "Wallet",
+    description: "Black wallet with cards",
+    imageUrl: "/images/wallet.jpg",
+    dateFound: "2025-08-30",
     location: "Library",
     category: "Accessories",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "2",
@@ -23,6 +25,9 @@ export const foundItems: FoundItem[] = [
     location: "Main Gate",
     category: "Accessories",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "3",
@@ -34,6 +39,9 @@ export const foundItems: FoundItem[] = [
     location: "Gym",
     category: "Beverage Containers",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "4",
@@ -45,6 +53,9 @@ export const foundItems: FoundItem[] = [
     location: "Cafeteria",
     category: "Jewelry",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "5",
@@ -56,6 +67,9 @@ export const foundItems: FoundItem[] = [
     location: "Lecture Hall A",
     category: "Bags",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "6",
@@ -67,6 +81,9 @@ export const foundItems: FoundItem[] = [
     location: "Library",
     category: "Electronics",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "7",
@@ -78,6 +95,9 @@ export const foundItems: FoundItem[] = [
     location: "Exam Hall",
     category: "School Supplies",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "8",
@@ -89,6 +109,9 @@ export const foundItems: FoundItem[] = [
     location: "Cafeteria",
     category: "Keys",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "9",
@@ -100,6 +123,9 @@ export const foundItems: FoundItem[] = [
     location: "Library",
     category: "Stationery",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "10",
@@ -111,6 +137,9 @@ export const foundItems: FoundItem[] = [
     location: "Study Area",
     category: "Electronics",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "11",
@@ -122,6 +151,9 @@ export const foundItems: FoundItem[] = [
     location: "Locker Room",
     category: "Clothing",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "12",
@@ -133,6 +165,9 @@ export const foundItems: FoundItem[] = [
     location: "Art Room",
     category: "Stationery",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "13",
@@ -144,6 +179,9 @@ export const foundItems: FoundItem[] = [
     location: "Restroom",
     category: "Personal Items",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "14",
@@ -155,6 +193,9 @@ export const foundItems: FoundItem[] = [
     location: "Entrance Hall",
     category: "Accessories",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
   {
     id: "15",
@@ -166,5 +207,8 @@ export const foundItems: FoundItem[] = [
     location: "Computer Lab",
     category: "Electronics",
     isClaimed: false,
+    userId: "123",              // ✅ added
+    createdAt: "2025-08-30",    // ✅ added
+    updatedAt: "2025-08-30",    // ✅ added
   },
 ];
