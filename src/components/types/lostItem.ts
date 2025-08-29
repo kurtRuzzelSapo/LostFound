@@ -8,6 +8,8 @@ export interface LostItem {
   user_id: string;
   created_at: string;
   updated_at: string;
+   category?: string;
+   isClaimed?: boolean;
 }
 
 export interface LostItemWithProfile extends LostItem {
