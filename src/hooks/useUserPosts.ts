@@ -101,6 +101,7 @@ export const useUserPosts = () => {
         description: item.description,
         date_found: item.date_found,
         image_url: imageUrl,
+        is_claimed: item.is_claimed,
       })
       .eq("id", item.id);
     if (error) throw new Error(error.message);
@@ -147,6 +148,8 @@ export const useUserPosts = () => {
         description: item.description,
         date_lost: item.date_lost,
         image_url: imageUrl,
+        is_claimed: item.is_claimed,
+        claimed_by: item.claimed_by,
       })
       .eq("id", item.id);
     if (error) throw new Error(error.message);

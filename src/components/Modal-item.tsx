@@ -13,6 +13,7 @@ import type {
   LostItemWithProfile,
 } from "./types/foundItem";
 import { motion, AnimatePresence } from "framer-motion";
+import { StartChatButton } from "./start-chat";
 
 interface ModalItemProps {
   item: FoundItemWithProfile | LostItemWithProfile;
@@ -74,14 +75,16 @@ const ModalItem = ({ item, type, isOpen, onClose }: ModalItemProps) => {
               />
               <div className="absolute top-4 left-4">
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    type === "found"
-                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                      : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${item.is_claimed
+                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                    }`}
                 >
-                  {type === "found" ? "Found" : "Lost"}
+                  {item.is_claimed
+                    ? "Claimed Already"
+                    : `${dateLabel} (Not yet claimed)`}
                 </span>
+
               </div>
             </div>
           )}
@@ -212,6 +215,14 @@ const ModalItem = ({ item, type, isOpen, onClose }: ModalItemProps) => {
                     </div>
                   )}
                 </div>
+                <div className="mt-4">
+                  <StartChatButton
+                    otherUserId={item.user_profiles.id}
+                    otherUserName={item.user_profiles.full_name || item.user_profiles.email || "User"}
+                  />
+                </div>
+                <p>ID{item.user_profiles.id} </p>
+                <p>{ item.user_profiles.full_name }</p>
               </div>
             )}
 

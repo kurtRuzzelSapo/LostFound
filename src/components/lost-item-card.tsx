@@ -52,6 +52,11 @@ const LostItemCard = ({
             Posted by: {item.user_profiles.full_name}
           </span>
         )}
+        {item.claimed_by && item.is_claimed && (
+          <span className="text-xs text-gray-500">
+            Claimed by: {item.claimed_by}
+          </span>
+        )}
       </motion.div>
 
       <ModalItem

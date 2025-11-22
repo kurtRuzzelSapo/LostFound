@@ -8,12 +8,14 @@ export interface LostItem {
   user_id: string;
   created_at: string;
   updated_at: string;
-   category?: string;
-   isClaimed?: boolean;
+  category?: string;
+  is_claimed?: boolean;
+  claimed_by?: string;  // 👈 new (user ID of the person who claimed the item)
 }
 
 export interface LostItemWithProfile extends LostItem {
   user_profiles?: {
+    id: string;
     full_name?: string;
     avatar_url?: string;
     phone_number?: string;

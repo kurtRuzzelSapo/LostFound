@@ -4,6 +4,7 @@ export interface UserProfile {
   avatar_url: string | null;
   role: "user" | "admin";
   phone_number: string | null;
+  email: string;
   whatsapp: string | null;
   preferred_contact_method: "email" | "phone" | "whatsapp";
   contact_visibility: "public" | "private" | "friends_only";
@@ -12,6 +13,7 @@ export interface UserProfile {
 }
 
 export interface UpdateUserProfileData {
+  id:string;
   full_name?: string;
   avatar_url?: string;
   phone_number?: string;

@@ -9,11 +9,13 @@ export interface FoundItem {
   createdAt: string;
   updatedAt: string;
   category?: string;    // 👈 new (e.g., Electronics, Accessories, Documents)
-  isClaimed?: boolean;  // 👈 new (true if item is already claimed)
+  is_claimed: boolean;  // 👈 new (true if item is already claimed)
+  claimed_by?: string;  // 👈 new (user ID of the person who claimed the item)
 }
 
 export interface FoundItemWithProfile extends FoundItem {
   user_profiles?: {
+    id:string
     full_name?: string;
     avatar_url?: string;
     phone_number?: string;
@@ -34,10 +36,13 @@ export interface LostItem {
   user_id: string;
   created_at: string;
   updated_at: string;
+  is_claimed?: boolean; 
+  claimed_by?: string;  // 👈 new (user ID of the person who claimed the item)
 }
 
 export interface LostItemWithProfile extends LostItem {
   user_profiles?: {
+    id: string;
     full_name?: string;
     avatar_url?: string;
     phone_number?: string;

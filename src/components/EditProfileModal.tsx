@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { supabase } from "@/supabase-client";
 import toast from "react-hot-toast";
-
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -152,7 +151,12 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               <input
                 type="tel"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
+                onChange={(e) => {
+                   const digitsOnly = e.target.value.replace(/\D/g, '');
+                  setPhoneNumber(digitsOnly);
+                  const limitedDigits = digitsOnly.slice(0, 11);
+                  setPhoneNumber(limitedDigits);
+                }}
                 className="w-full pl-10 pr-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-md bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="+1 (234) 567-8900"
               />

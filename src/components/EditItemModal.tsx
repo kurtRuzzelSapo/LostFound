@@ -19,6 +19,16 @@ interface EditItemModalProps {
   ) => void;
 }
 
+// Define proper form data type
+interface FormData {
+  title: string;
+  location: string;
+  description: string;
+  date: string;
+  is_claimed: boolean;
+  claimed_by?: string;
+}
+
 const EditItemModal = ({
   item,
   type,
@@ -34,19 +44,27 @@ const EditItemModal = ({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormData>({
     defaultValues: item
       ? {
           title: item.title,
           location: item.location,
           description: item.description,
+          is_claimed: item.is_claimed || false, // Ensure boolean
+          claimed_by: item.claimed_by,
           date: isFound
             ? (item as FoundItemWithProfile).date_found
             : (item as LostItemWithProfile).date_lost,
         }
-      : {},
+      : {
+          is_claimed: false, // Default value
+        },
   });
+
+  // Watch the is_claimed value to see it in real-time
+  const isClaimedValue = watch("is_claimed");
 
   useEffect(() => {
     if (item) {
@@ -54,6 +72,8 @@ const EditItemModal = ({
         title: item.title,
         location: item.location,
         description: item.description,
+        claimed_by: item.claimed_by,
+        is_claimed: item.is_claimed || false, // Ensure boolean
         date: isFound
           ? (item as FoundItemWithProfile).date_found
           : (item as LostItemWithProfile).date_lost,
@@ -65,21 +85,14 @@ const EditItemModal = ({
 
   if (!isOpen || !item) return null;
 
-  const onSubmit = (
-    data: Partial<{
-      title: string;
-      location: string;
-      description: string;
-      date: string;
-    }>
-  ) => {
-    if (!data.title || !data.location || !data.description || !data.date)
-      return;
+  const onSubmit = (data: FormData) => {
     const updated = {
-      ...item!,
+      ...item,
       title: data.title,
       location: data.location,
       description: data.description,
+      is_claimed: data.is_claimed, // This will now be proper boolean
+      claimed_by: data.claimed_by,
       [isFound ? "date_found" : "date_lost"]: data.date,
     };
     onSave(updated, selectedFile);
@@ -113,6 +126,8 @@ const EditItemModal = ({
           <h2 className="text-lg font-bold text-center mb-4 text-zinc-900 dark:text-zinc-100">
             Edit {isFound ? "Found" : "Lost"} Item
           </h2>
+          
+
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-3"
@@ -131,6 +146,44 @@ const EditItemModal = ({
                 <p className="text-red-500">Title is required</p>
               )}
             </div>
+
+            {/* Fixed checkbox section */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                {...register("is_claimed")}
+                id="is_claimed"
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <label 
+                htmlFor="is_claimed"
+                className="text-sm font-medium text-zinc-700 dark:text-zinc-200"
+              >
+                Is it claimed?
+              </label>
+            </div>
+            {isClaimedValue && (
+              <div className="flex flex-col gap-2">
+                <label
+                  className="text-sm font-medium text-zinc-700 dark:text-zinc-200"
+                  htmlFor="claimed_by"
+                >
+                  Claimed By who?
+                </label>
+                <input
+                  type="text"
+                  id="claimed_by"
+                  {...register("claimed_by", { required: isClaimedValue })}
+                  className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm"
+                  placeholder="Enter the name of the claimer"
+                  required={isClaimedValue}
+                />
+                {errors.claimed_by && (
+                  <p className="text-red-500">Claimer name is required</p>
+                )}
+              </div>
+            )}
+
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
                 Location
@@ -145,18 +198,21 @@ const EditItemModal = ({
                 <p className="text-red-500">Location is required</p>
               )}
             </div>
+
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
-                {isFound ? "Date & Time Found" : "Date & Time Lost"}
+                Date & Time of {isClaimedValue ? "Claimed" : isFound ? "Found" : "Lost"}
               </label>
               <input
                 type="datetime-local"
                 {...register("date", { required: true })}
+                 min={new Date().toISOString().slice(0, 16)}
                 className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm"
                 required
               />
               {errors.date && <p className="text-red-500">Date is required</p>}
             </div>
+
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
                 Description
@@ -171,6 +227,7 @@ const EditItemModal = ({
                 <p className="text-red-500">Description is required</p>
               )}
             </div>
+
             {/* Image upload */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
@@ -200,6 +257,7 @@ const EditItemModal = ({
                 }}
               />
             </div>
+
             <Button
               type="submit"
               className="mt-2 bg-green-600 hover:bg-green-700 text-white"

@@ -8,8 +8,9 @@ const fetchLostItems = async (): Promise<LostItemWithProfile[]> => {
   const { data, error } = await supabase
     .from("lost-items")
     .select(
-      "*, user_profiles(full_name, avatar_url, phone_number, whatsapp, email, preferred_contact_method, contact_visibility)"
+      "*, user_profiles(id, full_name, avatar_url, phone_number, whatsapp, email, preferred_contact_method, contact_visibility)"
     )
+    .eq("is_claimed", !true)
     .order("date_lost", { ascending: false });
 
   if (error) throw new Error(error.message);
