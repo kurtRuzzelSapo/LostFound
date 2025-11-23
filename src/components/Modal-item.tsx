@@ -69,7 +69,7 @@ const ModalItem = ({ item, type, isOpen, onClose }: ModalItemProps) => {
           {item.image_url && (
             <div className="relative h-48 sm:h-64 w-full overflow-hidden">
               <img
-                src={item.image_url}
+                src={item.image_url ? item.image_url : "/GC.jpeg"}
                 alt={item.title}
                 className="w-full h-full object-cover"
               />
@@ -221,8 +221,6 @@ const ModalItem = ({ item, type, isOpen, onClose }: ModalItemProps) => {
                     otherUserName={item.user_profiles.full_name || item.user_profiles.email || "User"}
                   />
                 </div>
-                <p>ID{item.user_profiles.id} </p>
-                <p>{ item.user_profiles.full_name }</p>
               </div>
             )}
 

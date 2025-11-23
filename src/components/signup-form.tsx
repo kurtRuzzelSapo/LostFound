@@ -53,9 +53,13 @@ export function SignupForm({
 
     try {
       const { error } = await signUpWithEmail(email, password, name);
-      if (!error) {
-        // Form will be handled by the AuthContext success message
-        // User will be redirected by the useEffect when user state changes
+         if (error) {
+        // Show error message if signup failed
+        alert(`Signup failed: ${error.message}`);
+      } else {
+        // Success - navigate to login page
+        alert("Account created successfully! Please log in.");
+        navigate("/auth/login");
       }
     } catch (error) {
       console.error("Signup error:", error);
