@@ -4,7 +4,7 @@
   "description": "FindIt helps you locate lost items and report found belongings in your community.",
   "icons": [
     {
-      "src": "/logo.ico",
+      "src": "/Fl_logo.ico",
       "sizes": "64x64",
       "type": "image/x-icon"
     }
