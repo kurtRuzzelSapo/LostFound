@@ -1,5 +1,5 @@
- import { useState } from "react";
-import { Edit, Trash2, MapPin, Calendar, User } from "lucide-react";
+import { useState } from "react";
+import { Edit, Trash2, MapPin, Calendar, User, CheckCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import type {
   FoundItemWithProfile,
@@ -12,6 +12,7 @@ interface UserPostCardProps {
   type: "found" | "lost";
   onEdit: (item: FoundItemWithProfile | LostItemWithProfile) => void;
   onDelete: (itemId: string) => void;
+  onClaim: (item: FoundItemWithProfile | LostItemWithProfile) => void;
   isDeleting: boolean;
 }
 
@@ -20,6 +21,7 @@ const UserPostCard = ({
   type,
   onEdit,
   onDelete,
+  onClaim,
   isDeleting,
 }: UserPostCardProps) => {
   const [showActions, setShowActions] = useState(false);
@@ -36,6 +38,9 @@ const UserPostCard = ({
     }
   };
 
+  // Check if item is already claimed
+  const isClaimed = item.is_claimed;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -45,6 +50,14 @@ const UserPostCard = ({
       onMouseEnter={() => setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
+      {/* Claimed Badge */}
+      {isClaimed && (
+        <div className="absolute top-2 left-2 z-10 bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Claimed
+        </div>
+      )}
+
       {/* Image */}
       {item.image_url && (
         <div className="relative h-48 overflow-hidden">
@@ -54,7 +67,7 @@ const UserPostCard = ({
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
           {/* Overlay with actions */}
-          {showActions && (
+          {showActions && !isClaimed && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2">
               <Button
                 size="sm"
@@ -67,6 +80,15 @@ const UserPostCard = ({
               </Button>
               <Button
                 size="sm"
+                variant="default"
+                onClick={() => onClaim(item)}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Claim
+              </Button>
+              <Button
+                size="sm"
                 variant="destructive"
                 onClick={() => onDelete(item.id)}
                 disabled={isDeleting}
@@ -75,6 +97,15 @@ const UserPostCard = ({
                 <Trash2 className="w-4 h-4 mr-1" />
                 {isDeleting ? "Deleting..." : "Delete"}
               </Button>
+            </div>
+          )}
+          {/* Show message if claimed */}
+          {showActions && isClaimed && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <div className="text-white text-center">
+                <CheckCircle className="w-8 h-8 mx-auto mb-2" />
+                <p className="text-sm">Item has been claimed</p>
+              </div>
             </div>
           )}
         </div>
@@ -101,6 +132,17 @@ const UserPostCard = ({
           {item.description}
         </p>
 
+        {/* Claimed Info */}
+        {isClaimed && item.claimed_by && (
+          <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-3">
+            <div className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-300">
+              <CheckCircle className="w-4 h-4" />
+              <span className="font-medium">Claimed by: {item.claimed_by}</span>
+            </div>
+          
+          </div>
+        )}
+
         {/* Location */}
         <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
           <MapPin className="w-4 h-4" />
@@ -125,7 +167,7 @@ const UserPostCard = ({
       </div>
 
       {/* Action buttons for cards without images */}
-      {!item.image_url && showActions && (
+      {!item.image_url && showActions && !isClaimed && (
         <div className="absolute top-2 right-2 flex gap-2">
           <Button
             size="sm"
@@ -137,6 +179,14 @@ const UserPostCard = ({
           </Button>
           <Button
             size="sm"
+            variant="default"
+            onClick={() => onClaim(item)}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+          >
+            <CheckCircle className="w-4 h-4" />
+          </Button>
+          <Button
+            size="sm"
             variant="destructive"
             onClick={() => onDelete(item.id)}
             disabled={isDeleting}
@@ -144,6 +194,15 @@ const UserPostCard = ({
           >
             <Trash2 className="w-4 h-4" />
           </Button>
+        </div>
+      )}
+
+      {/* Show claimed message for cards without images */}
+      {!item.image_url && showActions && isClaimed && (
+        <div className="absolute top-2 right-2">
+          <div className="bg-emerald-500 text-white px-2 py-1 rounded text-xs">
+            Claimed
+          </div>
         </div>
       )}
     </motion.div>

@@ -14,6 +14,7 @@ import type {
   LostItemWithProfile,
 } from "@/components/types/foundItem";
 import ConfirmModal from "@/components/ConfirmModal";
+import ClaimModal from "@/components/ClaimModal"; // Add this import
 
 const Profile = () => {
   const { user } = useAuth();
@@ -41,6 +42,11 @@ const Profile = () => {
     id: string;
     type: "found" | "lost";
   } | null>(null);
+  const [showClaimModal, setShowClaimModal] = useState(false); // Add this state
+  const [claimTarget, setClaimTarget] = useState<{ // Add this state
+    item: FoundItemWithProfile | LostItemWithProfile;
+    type: "found" | "lost";
+  } | null>(null);
 
   if (profileLoading) return <Loading />;
 
@@ -58,6 +64,11 @@ const Profile = () => {
     setEditItem(item);
     setEditType("date_found" in item ? "found" : "lost");
     setShowEditModal(true);
+  };
+
+  const handleClaim = (item: FoundItemWithProfile | LostItemWithProfile, type: "found" | "lost") => {
+    setClaimTarget({ item, type });
+    setShowClaimModal(true);
   };
 
   const handleDelete = (itemId: string, type: "found" | "lost") => {
@@ -82,6 +93,31 @@ const Profile = () => {
     setDeleteTarget(null);
   };
 
+  const handleClaimConfirm = (claimedByName: string, claimDate: string) => {
+    if (claimTarget) {
+      const updatedItem = {
+        ...claimTarget.item,
+        is_claimed: true,
+        claimed_by: claimedByName,
+        claimed_at: new Date().toISOString(),
+        date_found: claimDate, // Update the date_found column
+      };
+
+      if (claimTarget.type === "found") {
+        updateFoundItem(updatedItem as FoundItemWithProfile);
+      } else {
+        updateLostItem(updatedItem as LostItemWithProfile);
+      }
+    }
+    setShowClaimModal(false);
+    setClaimTarget(null);
+  };
+
+  const cancelClaim = () => {
+    setShowClaimModal(false);
+    setClaimTarget(null);
+  };
+
   // Add onSave handler for edit modal
   const handleSaveEdit = (
     updatedItem: FoundItemWithProfile | LostItemWithProfile,
@@ -96,10 +132,15 @@ const Profile = () => {
     setEditItem(null);
   };
 
+  // Calculate claimed items count
+  const claimedItemsCount = [...foundItems, ...lostItems].filter(
+    item => item.is_claimed
+  ).length;
+
   const stats = {
     found: foundItems.length,
     lost: lostItems.length,
-    claimed: 0, // TODO: Implement claimed items tracking
+    claimed: claimedItemsCount, // Now this will show actual claimed count
   };
 
   return (
@@ -224,6 +265,7 @@ const Profile = () => {
                         type="found"
                         onEdit={handleEdit}
                         onDelete={(itemId) => handleDelete(itemId, "found")}
+                        onClaim={(item) => handleClaim(item, "found")}
                         isDeleting={isDeletingFound}
                       />
                     ))
@@ -246,6 +288,7 @@ const Profile = () => {
                       type="lost"
                       onEdit={handleEdit}
                       onDelete={(itemId) => handleDelete(itemId, "lost")}
+                      onClaim={(item) => handleClaim(item, "lost")} // Fixed: should be "lost" not "found"
                       isDeleting={isDeletingLost}
                     />
                   ))
@@ -291,6 +334,13 @@ const Profile = () => {
         description="Are you sure you want to delete this item? This action cannot be undone."
         confirmText="Yes, Delete"
         cancelText="Cancel"
+      />
+      {/* Claim Modal */}
+      <ClaimModal
+        isOpen={showClaimModal}
+        onConfirm={handleClaimConfirm}
+        onCancel={cancelClaim}
+        itemTitle={claimTarget?.item.title || ""}
       />
     </div>
   );
