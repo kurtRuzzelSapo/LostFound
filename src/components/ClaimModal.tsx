@@ -1,5 +1,5 @@
 // components/ClaimModal.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, CheckCircle, Calendar } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -7,28 +7,41 @@ import { Label } from "./ui/label";
 
 interface ClaimModalProps {
   isOpen: boolean;
-  onConfirm: (claimedByName: string, claimDate: string) => void; // Update to accept two parameters
+  onConfirm: (claimedByName: string, claimDate: string) => void;
   onCancel: () => void;
   itemTitle: string;
+  itemDate?: string;
 }
 
 const ClaimModal = ({ isOpen, onConfirm, onCancel, itemTitle }: ClaimModalProps) => {
   const [claimedByName, setClaimedByName] = useState("");
-  const [claimDate, setClaimDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
+  const [claimDate, setClaimDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Get current year dates
+  const today = new Date().toISOString().split('T')[0];
+  const currentYear = new Date().getFullYear();
+  const firstDayOfYear = new Date(currentYear, 0, 1).toISOString().split('T')[0]; // January 1st of current year
 
   const handleConfirm = () => {
     if (claimedByName.trim()) {
-      onConfirm(claimedByName.trim(), claimDate); // Pass both parameters
+      onConfirm(claimedByName.trim(), claimDate);
       setClaimedByName("");
-      setClaimDate(new Date().toISOString().split('T')[0]); // Reset to today
+      setClaimDate(today);
     }
   };
 
   const handleCancel = () => {
     setClaimedByName("");
-    setClaimDate(new Date().toISOString().split('T')[0]); // Reset to today
+    setClaimDate(today);
     onCancel();
   };
+
+  // Reset claim date when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setClaimDate(today);
+    }
+  }, [isOpen, today]);
 
   if (!isOpen) return null;
 
@@ -54,7 +67,7 @@ const ClaimModal = ({ isOpen, onConfirm, onCancel, itemTitle }: ClaimModalProps)
           <p className="text-zinc-600 dark:text-zinc-300">
             Who claimed <span className="font-semibold">"{itemTitle}"</span>?
           </p>
-          
+
           <div className="space-y-2">
             <Label htmlFor="claimedBy">Claimed By</Label>
             <Input
@@ -81,8 +94,12 @@ const ClaimModal = ({ isOpen, onConfirm, onCancel, itemTitle }: ClaimModalProps)
               type="date"
               value={claimDate}
               onChange={(e) => setClaimDate(e.target.value)}
-              max={new Date().toISOString().split('T')[0]} // Can't claim in the future
+              min={firstDayOfYear} // January 1st of current year
+              max={today}          // Today's date
             />
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              Select a date from this year (January {currentYear} to today)
+            </p>
           </div>
 
           <div className="flex gap-3 pt-2">

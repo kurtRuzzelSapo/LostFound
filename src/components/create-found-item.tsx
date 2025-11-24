@@ -42,6 +42,11 @@ const CreateFoundItem = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  // Get current year dates
+  const today = new Date().toISOString().split('T')[0];
+  const currentYear = new Date().getFullYear();
+  const firstDayOfYear = new Date(currentYear, 0, 1).toISOString().split('T')[0]; // January 1st of current year
+
   const { mutate, isPending, isError } = useMutation({
     mutationFn: (data: { post: FoundItem; imageFile: File; userId: string }) =>
       createPost(data.post, data.imageFile, data.userId),
@@ -74,17 +79,11 @@ const CreateFoundItem = () => {
     });
   };
 
-  // useEffect(() => {
-  //   supabase.auth.getSession().then(({ data }) => {
-  //     console.log("Session:", data.session);
-  //   });
-  // }, []);
-
   const [showModal, setShowModal] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
-  // Open modal handler
+  
   const handleOpen = () => setShowModal(true);
-  // Close modal handler
+  
   const handleClose = () => {
     setAnimateIn(false);
     setTimeout(() => setShowModal(false), 300);
@@ -182,12 +181,17 @@ const CreateFoundItem = () => {
                   id="item-datetime"
                   type="datetime-local"
                   {...register("date_found", { required: true })}
+                  min={`${firstDayOfYear}T00:00`} // January 1st of current year
+                  max={`${today}T23:59`} // Today
                   className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm transition placeholder:text-zinc-400"
                   required
                 />
                 {errors.date_found && (
                   <p className="text-red-500">Date is required</p>
                 )}
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Select a date from this year (January {currentYear} to today)
+                </p>
               </div>
               <div className="flex flex-col gap-2">
                 <label
@@ -234,7 +238,7 @@ const CreateFoundItem = () => {
                   <input
                     type="file"
                     name="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/jpg,image/png"
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     tabIndex={-1}
                     onChange={(e) => {
@@ -249,7 +253,7 @@ const CreateFoundItem = () => {
 
                 {/* Validation Message */}
                 {!selectedFile && (
-                  <p className="text-red-500 text-sm">Image is required</p>
+                    <p className="text-red-500 text-sm">📸 Show a similar image to your found item to make it easier to recognize</p>
                 )}
               </div>
 

@@ -41,6 +41,11 @@ const CreateLostItem = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  // Get current year dates
+  const today = new Date().toISOString().split('T')[0];
+  const currentYear = new Date().getFullYear();
+  const firstDayOfYear = new Date(currentYear, 0, 1).toISOString().split('T')[0]; // January 1st of current year
+
   const { mutate, isPending, isError } = useMutation({
     mutationFn: (data: { post: LostItem; imageFile: File; userId: string }) =>
       createPost(data.post, data.imageFile, data.userId),
@@ -176,9 +181,17 @@ const CreateLostItem = () => {
                   type="datetime-local"
                   {...register("date_lost", { required: true })}
                   name="date_lost"
+                  min={`${firstDayOfYear}T00:00`} // January 1st of current year
+                  max={`${today}T23:59`} // Today
                   className="w-full border border-zinc-300 dark:border-zinc-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm transition placeholder:text-zinc-400"
                   required
                 />
+                {errors.date_lost && (
+                  <p className="text-red-500">Date is required</p>
+                )}
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Select a date from this year (January {currentYear} to today)
+                </p>
               </div>
               <div className="flex flex-col gap-2">
                 <label
@@ -195,6 +208,9 @@ const CreateLostItem = () => {
                   placeholder="Describe the item in detail..."
                   required
                 />
+                {errors.description && (
+                  <p className="text-red-500">Description is required</p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1 block">
@@ -219,7 +235,7 @@ const CreateLostItem = () => {
                   <input
                     type="file"
                     name="file"
-                    accept="image/*"
+                    accept=".jpg,.jpeg,.png,image/jpeg,image/jpg,image/png"
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     tabIndex={-1}
                     onChange={(e) => {
@@ -231,6 +247,10 @@ const CreateLostItem = () => {
                     }}
                   />
                 </label>
+                {/* Validation Message */}
+                {!selectedFile && (
+                  <p className="text-red-500 text-sm">📸 Show a similar image to your lost item to make it easier to find</p>
+                )}
               </div>
               <div className="flex gap-3 mt-2">
                 <button
