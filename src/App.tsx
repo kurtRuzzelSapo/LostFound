@@ -13,7 +13,6 @@ import CreateFoundItem from "./components/create-found-item";
 import CreateLostItem from "./components/create-lost-item";
 import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
-import NotFound from "./pages/NotFound";
 import { Toaster } from "react-hot-toast";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
@@ -39,16 +38,14 @@ function App() {
           </Route>
         </Route>
 
-
-        <Route path="admin" element={<ProtectedRoute allowedRoles={['admin' ]} />}>
+        <Route path="admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="reports" element={<AdminReportsPage />} />
           </Route>
         </Route>
 
-
-        <Route path="home" element={<ProtectedRoute allowedRoles={['user', ]} />}>
+        <Route path="home" element={<ProtectedRoute allowedRoles={['user']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="lost-item" element={<LostItem />} />
             <Route path="found-item" element={<FoundItem />} />
@@ -57,9 +54,8 @@ function App() {
           </Route>
         </Route>
 
-
-
-        <Route path="*" element={<NotFound />} />
+        {/* IMPORTANT: Add this catch-all route */}
+        <Route path="*" element={<Landing />} />
       </Routes>
 
       {/* Floating Button */}
